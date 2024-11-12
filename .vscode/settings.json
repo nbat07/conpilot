@@ -1,0 +1,10 @@
+{
+	"files.exclude": {
+		"dist": false 
+	},
+	"search.exclude": {
+		"dist": true 
+	},
+	"typescript.tsc.autoDetect": "off",
+	"github.copilot.enable": false
+}
