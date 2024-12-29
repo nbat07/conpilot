@@ -32,8 +32,8 @@ export function activate(context: vscode.ExtensionContext) {
             console.log('Text to send:', text);
             */
             // Get the surrounding code context (you can customize how much context you want)
-            const startLine = Math.max(position.line - 5, 0);  // Get up to 5 lines above the cursor
-            const endLine = Math.min(position.line + 5, editor.document.lineCount - 1);  // Get up to 5 lines below the cursor
+            const startLine = Math.max(position.line - 50, 0);  // Get up to 5 lines above the cursor
+            const endLine = Math.min(position.line + 50, editor.document.lineCount - 1);  // Get up to 5 lines below the cursor
             const codeContext = editor.document.getText(new vscode.Range(startLine, 0, endLine, editor.document.lineAt(endLine).text.length));
 
             console.log('Code context to send:', codeContext);
@@ -47,11 +47,16 @@ export function activate(context: vscode.ExtensionContext) {
                 });
                 console.log('Response from backend:', response.data);
 
-                // Insert the generated poem at the cursor position
-                const codeCompletion = response.data.code;
+                // Extract the generated code completion and remove unnecessary parts
+                let codeCompletion = response.data.code;
+                codeCompletion = codeCompletion.replace(/```[a-z]*\n/g, '').replace(/```/g, '').trim();
+                console.log('Formatted code completion:', codeCompletion);
+
+                // Insert the generated code completion at the cursor position
                 await editor.edit(editBuilder => {
-                    editBuilder.insert(editor.selection.active, `\n\n${codeCompletion}`);
+                    editBuilder.insert(position, `\n${codeCompletion}`);
                 });
+                console.log('Code completion inserted at the cursor position');
 
             } catch (error) {
                 console.error('Error sending text to backend:', error);
