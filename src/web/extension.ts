@@ -54,10 +54,20 @@ export function activate(context: vscode.ExtensionContext) {
                         codeCompletion = codeCompletion.replace(/```[a-z]*\n/g, '').replace(/```/g, '').trim();
                         console.log('Formatted code completion:', codeCompletion);
 
-                        // Compare the generated code completion with the actual full complete version
-                        const accuracy = calculateAccuracy(codeCompletion, testCode.complete);
-                        console.log(`Accuracy for snippet: ${accuracy}%`);
+   /*                     const combinedCodeCompletion = codeContext + codeCompletion;
 
+                        // Send the complete code to the backend for testing
+                        const testResponse = await axios.post('http://localhost:5000/test_code', { code: combinedCodeCompletion }, {
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        console.log('Test response from backend:', testResponse.data);
+
+                        // Compare the generated code completion with the actual full complete version
+                        const accuracy = calculateAccuracy(testResponse.data.output, testResponse.data.errors);
+                        console.log(`Accuracy for snippet: ${accuracy}%`);
+*/
                         /*// Insert the generated code completion at the cursor position
                         await editor.edit(editBuilder => {
                             editBuilder.insert(position, `\n${codeCompletion}`);
@@ -90,16 +100,11 @@ export function deactivate() {
 }
 
 // Function to calculate the accuracy of the generated code completion
-function calculateAccuracy(generated: string, actual: string): number {
-    const generatedLines = generated.split('\n');
-    const actualLines = actual.split('\n');
-    let correctLines = 0;
-
-    for (let i = 0; i < Math.min(generatedLines.length, actualLines.length); i++) {
-        if (generatedLines[i].trim() === actualLines[i].trim()) {
-            correctLines++;
-        }
+function calculateAccuracy(output: string, errors: string): number {
+    // Implement your logic to calculate accuracy based on test results
+    if (errors) {
+        return 0;
     }
-
-    return (correctLines / actualLines.length) * 100;
+    // Example: If all tests pass, return 100% accuracy
+    return output.includes('OK') ? 100 : 0;
 }
