@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                     // Send the text to the Flask backend
                     try {
-                        const response = await axios.post('http://localhost:5000/receive_text', { text: codeContext }, {
+                        const response = await axios.post('http://localhost:5000/receive_text', { text: codeContext , testFile: testCode.testFile }, {
                             headers: {
                                 'Content-Type': 'application/json'
                             }
@@ -54,20 +54,12 @@ export function activate(context: vscode.ExtensionContext) {
                         codeCompletion = codeCompletion.replace(/```[a-z]*\n/g, '').replace(/```/g, '').trim();
                         console.log('Formatted code completion:', codeCompletion);
 
-   /*                     const combinedCodeCompletion = codeContext + codeCompletion;
+                        const combinedCodeCompletion = codeContext + codeCompletion;
 
                         // Send the complete code to the backend for testing
-                        const testResponse = await axios.post('http://localhost:5000/test_code', { code: combinedCodeCompletion }, {
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
-                        console.log('Test response from backend:', testResponse.data);
-
-                        // Compare the generated code completion with the actual full complete version
-                        const accuracy = calculateAccuracy(testResponse.data.output, testResponse.data.errors);
+                        const accuracy = response.data.accuracy;
                         console.log(`Accuracy for snippet: ${accuracy}%`);
-*/
+
                         /*// Insert the generated code completion at the cursor position
                         await editor.edit(editBuilder => {
                             editBuilder.insert(position, `\n${codeCompletion}`);

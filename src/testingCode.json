@@ -1,6 +1,12 @@
 [
     {
         "incomplete": "public class GeneratedCode {\n   public String reverseString(String input) {",
-        "complete": "public class GeneratedCode {\n    public String reverseString(String input) {\n        if (input == null) {\n            return null;\n        }\n        return new StringBuilder(input).reverse().toString();\n    }\n}"
+        "complete": "public class GeneratedCode {\n    public String reverseString(String input) {\n        if (input == null) {\n            return null;\n        }\n        return new StringBuilder(input).reverse().toString();\n    }\n}",
+        "testFile": "GeneratedCodeTest.java"
+    },
+    {
+        "incomplete": "public class GeneratedCode {\n   public static void main(String[] args) {",
+        "complete": "public class GeneratedCode {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}",
+        "testFile": "HelloWorldTest.java"
     }
 ]
