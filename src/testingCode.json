@@ -20,7 +20,7 @@
         "testFile": "TemperatureConverterTest.java"
     },
     {
-        "incomplete": "public class TemperatureConverter {\n    public static double fahrenheitToCelsius(double Fahrenheit) {\n        double Celsius = (Fahrenheit - 32) * 5 / 9;\n        double Celsius0 = Math.round(Celsius * 100.0)",
+        "incomplete": "public class TemperatureConverter {\n    public static double fahrenheitToCelsius(double Fahrenheit) {\n        double Celsius = (Fahrenheit - 32) * 5 / 9;\n        double Celsius0 = Math.round(Celsius * 100.0);",
         "complete": "public class TemperatureConverter {\n    public static double fahrenheitToCelsius(double Fahrenheit) {\n        double Celsius = (Fahrenheit - 32) * 5 / 9;\n        double Celsius0 = Math.round(Celsius * 100.0) / 100.0;\n        return Celsius0;\n    }\n}",
         "testFile": "TemperatureConverterTest.java"
     },

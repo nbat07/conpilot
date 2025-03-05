@@ -7,6 +7,18 @@ import * as fs from 'browserify-fs';
 export function activate(context: vscode.ExtensionContext) {
     console.log('Congratulations, your extension "conpilot" is now active!');
 
+    const toggleButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+    toggleButton.text = '$(sync) Use Test Code';
+    toggleButton.command = 'extension.toggleMode';
+    toggleButton.show();
+
+    let useTestCode = false;
+
+    vscode.commands.registerCommand('extension.toggleMode', () => {
+        useTestCode = !useTestCode;
+        toggleButton.text = useTestCode ? '$(sync) Use Test Code' : '$(sync) Use User Input';
+    });
+
     // Register the conpilot command
     let disposable = vscode.commands.registerCommand('conpilot', async () => {
         // Get the active text editor
@@ -23,16 +35,63 @@ export function activate(context: vscode.ExtensionContext) {
                 const jsonString = new TextDecoder('utf-8').decode(data);
                 const testCodeSnippets = JSON.parse(jsonString.trim());
                 console.log('Test code snippets:', testCodeSnippets);
-            
+        
 
-                for (const testCode of testCodeSnippets) {
-                    console.log('Inserting incomplete code snippet:', testCode.incomplete);
+                if (useTestCode) {
+                    for (const testCode of testCodeSnippets) {
+                        console.log('Inserting incomplete code snippet:', testCode.incomplete);
 
-                    // Insert the incomplete code snippet at the cursor position
-                    await editor.edit(editBuilder => {
-                        editBuilder.insert(position, testCode.incomplete);
-                    });
+                        // Insert the incomplete code snippet at the cursor position
+                        await editor.edit(editBuilder => {
+                            editBuilder.insert(position, testCode.incomplete);
+                        });
 
+                        // Get the surrounding code context (you can customize how much context you want)
+                        const startLine = Math.max(position.line - 50, 0);  // Get up to 5 lines above the cursor
+                        const endLine = Math.min(position.line + 50, editor.document.lineCount - 1);  // Get up to 5 lines below the cursor
+                        const codeContext = editor.document.getText(new vscode.Range(startLine, 0, endLine, editor.document.lineAt(endLine).text.length));
+
+                        console.log('Code context to send:', codeContext);
+
+                        // Send the text to the Flask backend
+                        try {
+                            const response = await axios.post('http://localhost:5000/receive_text', { text: codeContext , testFile: testCode.testFile, performAccuracyTesting: true }, {
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                }
+                            });
+                            console.log('Response from backend:', response.data);
+
+                            // Extract the generated code completion and remove unnecessary parts
+                            let codeCompletion = response.data.code;
+                            codeCompletion = codeCompletion.replace(/```[a-z]*\n/g, '').replace(/```/g, '').trim();
+                            console.log('Formatted code completion:', codeCompletion);
+
+                            const combinedCodeCompletion = codeContext + codeCompletion;
+
+                            // Send the complete code to the backend for testing
+                            const accuracy = response.data.accuracy;
+                            console.log(`Accuracy for snippet: ${accuracy}%`);
+
+                            /*// Insert the generated code completion at the cursor position
+                            await editor.edit(editBuilder => {
+                                editBuilder.insert(position, `\n${codeCompletion}`);
+                            });
+                            console.log('Code completion inserted at the cursor position');*/
+
+                            // Clear the inserted incomplete code snippet
+                            await editor.edit(editBuilder => {
+                                const endPosition = editor.selection.active;
+                                const range = new vscode.Range(position, endPosition);
+                                editBuilder.delete(range);
+                            });
+
+                        } catch (error) {
+                            console.error('Error sending text to backend:', error);
+                        }
+                    }
+                } else {
+                    console.log('Using user input at cursor position');
                     // Get the surrounding code context (you can customize how much context you want)
                     const startLine = Math.max(position.line - 50, 0);  // Get up to 5 lines above the cursor
                     const endLine = Math.min(position.line + 50, editor.document.lineCount - 1);  // Get up to 5 lines below the cursor
@@ -42,7 +101,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                     // Send the text to the Flask backend
                     try {
-                        const response = await axios.post('http://localhost:5000/receive_text', { text: codeContext , testFile: testCode.testFile }, {
+                        const response = await axios.post('http://localhost:5000/receive_text', { text: codeContext , testFile: '', performAccuracyTesting: false }, {
                             headers: {
                                 'Content-Type': 'application/json'
                             }
@@ -60,26 +119,19 @@ export function activate(context: vscode.ExtensionContext) {
                         const accuracy = response.data.accuracy;
                         console.log(`Accuracy for snippet: ${accuracy}%`);
 
-                        /*// Insert the generated code completion at the cursor position
+                        // Insert the generated code completion at the cursor position
                         await editor.edit(editBuilder => {
                             editBuilder.insert(position, `\n${codeCompletion}`);
                         });
-                        console.log('Code completion inserted at the cursor position');*/
-
-                        // Clear the inserted incomplete code snippet
-                        await editor.edit(editBuilder => {
-                            const endPosition = editor.selection.active;
-                            const range = new vscode.Range(position, endPosition);
-                            editBuilder.delete(range);
-                        });
+                        console.log('Code completion inserted at the cursor position');
 
                     } catch (error) {
                         console.error('Error sending text to backend:', error);
                     }
                 }
-          } catch (error) {
+            } catch (error) {
                 console.error('Error reading test code snippets:', error);
-          }       
+            }
         }
     });
 
