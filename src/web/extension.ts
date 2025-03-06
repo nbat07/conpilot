@@ -12,11 +12,22 @@ export function activate(context: vscode.ExtensionContext) {
     toggleButton.command = 'extension.toggleMode';
     toggleButton.show();
 
+    const toggleCorrectnessButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 99);
+    toggleCorrectnessButton.text = '$(check) Correct';
+    toggleCorrectnessButton.command = 'extension.toggleCorrectnessMode';
+    toggleCorrectnessButton.show();
+
     let useTestCode = false;
+    let useCorrectCode = false;
 
     vscode.commands.registerCommand('extension.toggleMode', () => {
         useTestCode = !useTestCode;
         toggleButton.text = useTestCode ? '$(sync) Use Test Code' : '$(sync) Use User Input';
+    });
+
+    vscode.commands.registerCommand('extension.toggleCorrectnessMode', () => {
+        useCorrectCode = !useCorrectCode;
+        toggleCorrectnessButton.text = useCorrectCode ? '$(check) Correct' : '$(x) Incorrect';
     });
 
     // Register the conpilot command
@@ -55,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                         // Send the text to the Flask backend
                         try {
-                            const response = await axios.post('http://localhost:5000/receive_text', { text: codeContext , testFile: testCode.testFile, performAccuracyTesting: true }, {
+                            const response = await axios.post('http://localhost:5000/receive_text', { text: codeContext , testFile: testCode.testFile, performAccuracyTesting: true, useCorrectCode: useCorrectCode }, {
                                 headers: {
                                     'Content-Type': 'application/json'
                                 }
@@ -101,7 +112,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                     // Send the text to the Flask backend
                     try {
-                        const response = await axios.post('http://localhost:5000/receive_text', { text: codeContext , testFile: '', performAccuracyTesting: false }, {
+                        const response = await axios.post('http://localhost:5000/receive_text', { text: codeContext , testFile: '', performAccuracyTesting: false, useCorrectCode: useCorrectCode }, {
                             headers: {
                                 'Content-Type': 'application/json'
                             }
