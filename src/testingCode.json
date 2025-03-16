@@ -1,10 +1,5 @@
 [
     {
-        "incomplete": "public class GeneratedCode {\n   public String reverseString(String input) {",
-        "complete": "public class GeneratedCode {\n    public String reverseString(String input) {\n        if (input == null) {\n            return null;\n        }\n        return new StringBuilder(input).reverse().toString();\n    }\n}",
-        "testFile": "GeneratedCodeTest.java"
-    },
-    {
         "incomplete": "public class TemperatureConverter {\n    public static double fahrenheitToCelsius(double fahrenheit) {",
         "complete": "public class TemperatureConverter {\n    public static double fahrenheitToCelsius(double fahrenheit) {\n        double celsius = (fahrenheit - 32) * 5 / 9;\n        return Math.round(celsius * 100.0) / 100.0;\n    }\n}",
         "testFile": "TemperatureConverterTest.java"
@@ -168,11 +163,6 @@
         "incomplete": "public class AckermannFunction {\n    public static int ackermann(int m, int n) {",
         "complete": "public class AckermannFunction {\n    public static int ack(int m, int n) {\n        if (m == 0) {\n            return n + 1;\n        } else if (n == 0) {\n            return ack(m - 1, 1);\n        } else {\n            return ack(m - 1, ack(m, n - 1));\n        }\n    }\n}",
         "testFile": "AckermannFunctionTest.java"
-    },
-    {
-        "incomplete": "import org.apache.commons.math3.linear.*;\n\npublic class LinearEquationSolver {\n    public static double[] solveLinearEquations(double[][] a, double[] b) {\n        try {\n            RealMatrix coefficients = new Array2DRowRealMatrix(a, false);\n            DecompositionSolver solver = new LUDecomposition(coefficients).getSolver();\n",
-        "complete": "public class LinearEquationSolver {\n    public static double[] solveLinearEquations(double[][] a, double[] b) {\n        try {\n            RealMatrix coefficients = new Array2DRowRealMatrix(a, false);\n            DecompositionSolver solver = new LUDecomposition(coefficients).getSolver();\n            RealVector constants = new ArrayRealVector(b, false);\n            RealVector solution = solver.solve(constants);\n            return solution.toArray();\n        } catch (Exception e) {\n            throw new IllegalArgumentException(\"ERROR: Cannot find solution.\");\n        }\n    }\n}",
-        "testFile": "LinearEquationSolverTest.java"
     },
     {
         "incomplete": "import java.util.*;\npublic class MarksManager {\n    public static String manageMarks(int records, List<String> inputs) {\n        if (records <= 0) {\n            return \"\";\n        }\n\n        Map<Integer, Integer> rollToMarks = new HashMap<>();\n\n        for (String input : inputs) {\n            String[] parts = input.split(\",\");\n            int roll = Integer.parseInt(parts[0].trim());\n            int marks = Integer.parseInt(parts[2].trim());\n            rollToMarks.put(roll, rollToMarks.getOrDefault(roll, 0) + marks);",
